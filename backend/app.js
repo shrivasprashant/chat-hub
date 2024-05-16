@@ -1,11 +1,12 @@
 import express from "express"
-const app = express()
+// const app = express()
 import dotenv from "dotenv"
 import cors from "cors"
 import  connectDatabase  from "./config/database.js"
 import userRoutes from "./routes/userRoutes.js"
 import messageRoutes from "./routes/messageRoutes.js"
 import cookieParser from "cookie-parser"
+import { server , app } from "./socket/Soket.js"
 
 dotenv.config({})
 const port = process.env.port || 5000
@@ -47,7 +48,7 @@ import { generatedError } from "./middleware/error.js"
 app.use(generatedError)
 
 
-app.listen(port, () => {
+server.listen(port, () => {
     connectDatabase()
     console.log(`server listen at port  ${port}`);
 }) 

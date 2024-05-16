@@ -4,8 +4,10 @@ import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import Signup from './components/Signup';
 import Login from './components/Login';
 import HomePage from './components/HomePage';
-import { useSelector } from 'react-redux';
-import io from "socket.io-client";
+import { useDispatch, useSelector } from 'react-redux';
+import io from "socket.io-client"
+import { setSocket } from './redux/SocketSlice';
+import { setOnlineUsers } from './redux/userSlice';
 const router = createBrowserRouter([
   {
     path: "/register",
@@ -21,15 +23,28 @@ const router = createBrowserRouter([
 ])
 
 function App() { 
-  const [socket, setsocket] = useState(null)
   const {authUser} = useSelector(store=>store.user)
+  const {Socket} = useSelector(store=>store.socket)
+  // console.log(Socket);
+  const dispatch = useDispatch()
   useEffect(() => {
     if(authUser){
       const socket = io("http://localhost:8080", {
-        
+        query:{
+          userID:authUser._id
+        }
       })
+      dispatch(setSocket(socket))
+      socket.on("getOnlineUsers", (OnlineUsers)=>{
+        dispatch(setOnlineUsers(OnlineUsers))
+      })
+      return ()=> socket.close()
+    }else{
+      if(Socket){
+        Socket.close()
+      dispatch(setSocket(null))
+      }
     }
-    setsocket(socket)
   }, [authUser])
   
   return (
